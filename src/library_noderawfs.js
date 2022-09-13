@@ -51,7 +51,7 @@ mergeInto(LibraryManager.library, {
       }
     },
     // generic function for all node creation
-    cwd: function() { return process.cwd(); },
+    cwd: function() { return process.cwd().replace(/\\/g, '/') },
     chdir: function() { process.chdir.apply(void 0, arguments); },
     mknod: function(path, mode) {
       if (FS.isDir(path)) {
@@ -66,7 +66,18 @@ mergeInto(LibraryManager.library, {
     rmdir: function() { fs.rmdirSync.apply(void 0, arguments); },
     readdir: function() { return ['.', '..'].concat(fs.readdirSync.apply(void 0, arguments)); },
     unlink: function() { fs.unlinkSync.apply(void 0, arguments); },
-    readlink: function() { return fs.readlinkSync.apply(void 0, arguments); },
+    readlink: function() { 
+      try {
+        return fs.readlinkSync.apply(void 0, arguments);
+      } catch (e) {
+        // On windows, node will return an e.code of 'UNKNOWN' when it
+        // cannot read a link
+        if (e.code === 'UNKNOWN') {
+            throw new FS.ErrnoError(ERRNO_CODES['EINVAL']); // We want EINVAL
+        }
+        throw e;
+      } 
+    },
     stat: function() { return fs.statSync.apply(void 0, arguments); },
     lstat: function() { return fs.lstatSync.apply(void 0, arguments); },
     chmod: function() { fs.chmodSync.apply(void 0, arguments); },
