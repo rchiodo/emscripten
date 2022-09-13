@@ -70,9 +70,9 @@ mergeInto(LibraryManager.library, {
       try {
         return fs.readlinkSync.apply(void 0, arguments);
       } catch (e) {
-        // On windows, node will return an e.code of 'UNKNOWN' when it
+        // On windows, node will return an e.code of 'UNKNOWN' or 'ENOENT' when it
         // cannot read a link
-        if (e.code === 'UNKNOWN') {
+        if (e.code === 'UNKNOWN' || e.code === 'ENOENT') {
             throw new FS.ErrnoError(ERRNO_CODES['EINVAL']); // We want EINVAL
         }
         throw e;

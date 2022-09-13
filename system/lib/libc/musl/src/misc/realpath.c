@@ -13,8 +13,8 @@ static size_t slash_len(const char *s)
 
 char *realpath(const char *restrict filename, char *restrict resolved)
 {
-	char stack[PATH_MAX+1];
-	char output[PATH_MAX];
+	char stack[PATH_MAX+1] = { 0 };
+	char output[PATH_MAX] = { 0 };
 	size_t p, q, l, l0, cnt=0, nup=0;
 	int check_dir=0;
 
