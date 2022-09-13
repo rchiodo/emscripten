@@ -15,6 +15,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <limits.h>
 
 #define CHECK(cond) if (!(cond)) { printf("errno: %s\n", strerror(errno)); assert(cond); }
 
@@ -200,12 +201,28 @@ void test_scandir() {
   }
 }
 
+void test_realpath() {
+  char path[PATH_MAX] = {0};
+  // check bad opendir input
+  char * found = realpath("noexist", path);
+  assert(!found);
+  assert(errno == ENOENT);
+  found = realpath("foobar", path);
+  assert(found);
+  assert(strstr(path, "foobar"));
+  found = realpath("foobar/file.txt", path);
+  assert(found);
+  assert(strstr(path, "foobar/file.txt"));
+}
+
+
 int main() {
   atexit(cleanup);
   signal(SIGABRT, cleanup);
   setup();
   test();
   test_scandir();
+  test_realpath();
 
   return EXIT_SUCCESS;
 }

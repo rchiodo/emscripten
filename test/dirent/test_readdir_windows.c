@@ -200,6 +200,20 @@ void test_scandir() {
   }
 }
 
+void test_realpath() {
+  char path[PATH_MAX] = {0};
+  // check bad opendir input
+  char * found = realpath("noexist", path);
+  ASSERT_WITH_CLEANUP(!found);
+  ASSERT_WITH_CLEANUP(errno == ENOENT);
+  found = realpath("foobar", path);
+  ASSERT_WITH_CLEANUP(found);
+  ASSERT_WITH_CLEANUP(strstr(path, "foobar"));
+  found = realpath("foobar/file.txt", path);
+  ASSERT_WITH_CLEANUP(found);
+  ASSERT_WITH_CLEANUP(strstr(path, "foobar/file.txt"));
+}
+
 int main(int argc, char * argv[]) {
   if (argc < 3) {
     printf("test_readdir_windows args: %%WINDIR%% %%TEMP%%\n");
@@ -213,6 +227,7 @@ int main(int argc, char * argv[]) {
   test();
   test_scandir();
   cleanup();
+  test_realpath();
 
   return EXIT_SUCCESS;
 }
